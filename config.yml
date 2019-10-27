@@ -1,2 +1,4 @@
 output_dir: /media/diego/QData/youtube_out/
 client_json_file: client_secrets.json
+video_format: 18
+s3_bucket: splitframe-out
