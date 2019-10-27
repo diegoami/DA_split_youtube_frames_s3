@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     playlist_id = args.playlist_id
-    youtube_client = YoutubeClient(os.path.join(os.path.dirname(__file__), client_json_file))
+    youtube_client = YoutubeClient(client_json_file)
     playlist_name = youtube_client.playlist_name(playlist_id)
     playlist_key = playlist_id + '_' + sanitize_filename(playlist_name, restricted=True)
     playlist_output = os.path.join(video_output_path, playlist_key)
