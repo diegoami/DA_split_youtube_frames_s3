@@ -9,6 +9,7 @@ from youtube_dl import YoutubeDL, DEFAULT_OUTTMPL
 from youtube_dl.utils import sanitize_filename
 import cv2
 
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 def download_videos(youtube_client, playlist_id, playlist_key, video_output_path):
     playlist_output = os.path.join(video_output_path, playlist_key)
@@ -29,7 +30,7 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
     return playlist_output
 
 
-def extract_videos_to_s3(s3_bucket, playlist_output, playlist_key):
+def upload_videos_to_s3(s3_bucket, playlist_output, playlist_key):
     if s3_bucket:
         s3_client = boto3.client('s3')
         transfer = S3Transfer(s3_client)
@@ -42,13 +43,29 @@ def extract_videos_to_s3(s3_bucket, playlist_output, playlist_key):
             logging.info("Transferring {} to {}:{}".format(full_file, s3_bucket, dest_file))
             transfer.upload_file(full_file, s3_bucket, dest_file)
 
+def upload_frames_to_s3(s3_bucket, frame_output, frame_key):
+    if s3_bucket:
+        s3_client = boto3.client('s3')
+        transfer = S3Transfer(s3_client)
+    if s3_client:
 
-def split_into_frames(frame_output_path, playlist_output, playlist_key):
+        frame_dirs = os.listdir(frame_output)
+        for frame_dir in frame_dirs:
+            files = os.listdir(os.path.join(frame_output, frame_dir))
+            for file in files:
+                full_file = os.path.join(frame_output, frame_dir, file)
+                dest_file = os.path.join('images', frame_key, frame_dir, file)
+                logging.info("Transferring {} to {}:{}".format(full_file, s3_bucket, dest_file))
+                transfer.upload_file(full_file, s3_bucket, dest_file)
+
+
+
+def split_into_frames(frame_output, playlist_output, frame_interval):
     files = os.listdir(playlist_output)
     for file in files:
         full_file = os.path.join(playlist_output, file)
         vidcap = cv2.VideoCapture(full_file)
-        img_output = os.path.join(frame_output_path, playlist_key, file)
+        img_output = os.path.join(frame_output, file)
         os.makedirs(img_output, exist_ok=True)
 
         def getFrame(vidcap, sec, imgdir):
@@ -59,7 +76,7 @@ def split_into_frames(frame_output_path, playlist_output, playlist_key):
             return hasFrames
 
         sec = 0
-        frameRate = 5  # //it will capture image in each 0.5 second
+        frameRate = frame_interval  # //it will capture image in each 0.5 second
         count = 1
 
         success = getFrame(vidcap, sec, img_output)
@@ -79,6 +96,7 @@ if __name__ == "__main__":
         client_json_file = config['client_json_file']
         video_format = config['video_format']
         s3_bucket = config['s3_bucket']
+        frame_interval = config['frame_interval']
 
 
     if not os.path.exists(output_path):
@@ -94,8 +112,9 @@ if __name__ == "__main__":
     playlist_name = youtube_client.playlist_name(playlist_id)
     playlist_key = playlist_id + '_' + sanitize_filename(playlist_name, restricted=True)
     playlist_output = os.path.join(video_output_path, playlist_key)
-
+    frame_output = os.path.join(frame_output_path, playlist_key)
     download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key, video_output_path=video_output_path)
-    extract_videos_to_s3(s3_bucket=s3_bucket, playlist_output=playlist_output, playlist_key=playlist_key)
+    upload_videos_to_s3(s3_bucket=s3_bucket, playlist_output=playlist_output, playlist_key=playlist_key)
 
-    split_into_frames(frame_output_path=frame_output_path, playlist_output=playlist_output, playlist_key=playlist_key)
+    split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=frame_interval)
+    upload_frames_to_s3(s3_bucket=s3_bucket, frame_output=frame_output, frame_key=playlist_key)
