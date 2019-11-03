@@ -8,4 +8,10 @@ The goal is to extract frames from videos in a playlist in youtube and save, say
 
 * A google applications and its correspondent `client_secrets.json`
 * set up configuration in config.yml 
-* Call `python download_videos.py --playlist_id=<YOUR_PLAYLIST_ID>`
+
+## EXECUTION
+
+* `python main.py download_videos --playlist_id=<YOUR_PLAYLIST_ID>`
+* `python main.py upload_videos_to_s3 --playlist_id=<YOUR_PLAYLIST_ID>`
+* `python main.py split_into_frames --playlist_id=<YOUR_PLAYLIST_ID>`
+* `python main.py upload_frames_to_s3 --playlist_id=<YOUR_PLAYLIST_ID>`
