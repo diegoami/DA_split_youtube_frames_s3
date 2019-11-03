@@ -11,7 +11,7 @@ The goal is to extract frames from videos in a playlist in youtube and save, say
 
 ## EXECUTION
 
-* `python main.py download_videos --playlist_id=<YOUR_PLAYLIST_ID>`
+* `python main.py download_videos --playlist_id=<YOUR_PLAYLIST_ID> --video_ranges=<comma separated list of ranges, e.g. 1-3,5-9>`
 * `python main.py upload_videos_to_s3 --playlist_id=<YOUR_PLAYLIST_ID>`
 * `python main.py split_into_frames --playlist_id=<YOUR_PLAYLIST_ID>`
 * `python main.py upload_frames_to_s3 --playlist_id=<YOUR_PLAYLIST_ID>`
