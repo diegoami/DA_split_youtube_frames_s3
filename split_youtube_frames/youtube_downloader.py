@@ -42,7 +42,7 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
                                 'outtmpl': playlist_output + '/' + DEFAULT_OUTTMPL, "nooverwrites": True, "restrictfilenames": True}) as youtube_dl:
                     youtube_dl.download([url])
                 logging.info(f"Done")
-                description_filename = sanitize_filename(f'{title}-{video_id}.dsc')
+                description_filename = sanitize_filename(f'{title}-{video_id}.dsc', restricted=True)
                 with open(os.path.join(playlist_output, description_filename), 'w') as dfw:
                     dfw.writelines(description)
                 logging.info(f"Description saved to {description_filename}")
