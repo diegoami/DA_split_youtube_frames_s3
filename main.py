@@ -29,7 +29,7 @@ if __name__ == "__main__":
     # use dispatch pattern to invoke method with same name
 
     parser.add_argument('--playlist_id', type=str, required=True)
-    parser.add_argument('--video_ranges', type=str)
+    parser.add_argument('--video_range', type=str)
 
     with open('config.yml') as f:
         config = yaml.safe_load(f)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     playlist_id = args.playlist_id
-    video_ranges = args.video_range
+    video_range = args.video_range
     youtube_client = YoutubeClient(config['client_json_file'])
     playlist_name = youtube_client.playlist_name(playlist_id)
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     frame_output = os.path.join(frame_output_path,  playlist_key)
 
     if args.command == 'download_videos':
-        download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key,  video_output_path=video_output_path, video_format=config['video_format'], video_ranges=video_ranges)
+        download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key,  video_output_path=video_output_path, video_format=config['video_format'], video_range=video_range)
     if args.command == 'upload_videos_to_s3':
         upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key)
 
