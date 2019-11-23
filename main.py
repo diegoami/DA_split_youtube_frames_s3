@@ -57,6 +57,6 @@ if __name__ == "__main__":
         upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key)
 
     if args.command == 'split_into_frames':
-        split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'])
+        split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'], video_range=args.video_range)
     if args.command == 'upload_frames_to_s3':
         upload_frames_to_s3(s3_bucket=config['s3_bucket'], frame_output=frame_output, frame_key=playlist_key)

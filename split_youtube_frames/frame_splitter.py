@@ -2,24 +2,32 @@ import cv2
 import os
 import re
 from youtube_dl.utils import sanitize_filename
-
+from .utils import get_int_video_ranges
 
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
 RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
 
 
-def split_into_frames(frame_output, playlist_output, frame_interval):
+def split_into_frames(frame_output, playlist_output, frame_interval, video_range):
     files = list(os.listdir(playlist_output))
+    valid_ranges = get_int_video_ranges(video_range)
     desc_map = {}
     video_files = []
     for file in files:
-        full_file = os.path.join(playlist_output, file)
-        file_core, file_extension = os.path.splitext(file)
-        if file_extension == '.dsc':
-            grp = list(retrieve_groups_from_desc(full_file))
-            desc_map[sanitize_filename(file_core, restricted=True)] = grp
-        else:
-            video_files.append(file)
+
+
+            full_file = os.path.join(playlist_output, file)
+            file_core, file_extension = os.path.splitext(file)
+            if file_extension == '.dsc':
+                grp = list(retrieve_groups_from_desc(full_file))
+                desc_map[sanitize_filename(file_core, restricted=True)] = grp
+            else:
+                episode = extract_episode_number(file)
+                if episode in valid_ranges:
+                    print("Processing {} episode".format(episode))
+                    video_files.append(file)
+                else:
+                    print("Skipping {} episode".format(episode))
 
     for file in video_files:
         full_file = os.path.join(playlist_output, file)
@@ -40,8 +48,8 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
             return category
         return None
 
-    def get_frame(vidcap, sec, imgdir, episode, category, count):
-        dir_to_split = 'validation' if (count % 5 == 0) else 'train'
+    def get_frame(vidcap, sec, imgdir, episode, category, dir_to_split):
+
         vidcap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
         hasFrames, image = vidcap.read()
         os.makedirs(os.path.join(imgdir, dir_to_split, category), exist_ok=True)
@@ -59,8 +67,14 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         count = count + 1
         sec = sec + frameRate
         sec = round(sec, 2)
-        category = get_category(sec, desc_categories)
-        success = get_frame(vidcap, sec, frame_output, episode, category if category else "unknown", count)
+        if desc_categories:
+            category = get_category(sec, desc_categories)
+            dir_to_split = 'validation' if (count % 5 == 0) else 'train'
+            category if category else "unknown"
+        else:
+            dir_to_split = 'test'
+            category = 'uncategorized'
+        success = get_frame(vidcap, sec, frame_output, episode, category, dir_to_split)
 
 
 def retrieve_groups_from_desc(filename):

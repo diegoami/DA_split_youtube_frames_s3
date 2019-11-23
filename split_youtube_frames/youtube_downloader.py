@@ -2,18 +2,10 @@ import logging
 import os
 from youtube_dl import YoutubeDL, DEFAULT_OUTTMPL
 from youtube_dl.utils import sanitize_filename
+from .utils import get_int_video_ranges
 
 '%(title)s-%(id)s.%(ext)s'
-def get_int_video_ranges(video_ranges):
-    videos_selection = []
-    video_ranges_l = video_ranges.split(',')
-    for vr in video_ranges_l:
-        if '-' in vr:
-            vr_l = vr.split('-')
-            videos_selection.extend([x for x in range(int(vr_l[0]), int(vr_l[1])+1)])
-        else:
-            videos_selection.append(int(vr))
-    return videos_selection
+
 
 def download_videos(youtube_client, playlist_id, playlist_key, video_output_path, video_format, video_range):
     playlist_output = os.path.join(video_output_path, playlist_key)
