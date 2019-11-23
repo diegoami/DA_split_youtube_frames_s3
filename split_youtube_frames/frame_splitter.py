@@ -15,8 +15,8 @@ def split_into_frames(frame_output, playlist_output, frame_interval):
         full_file = os.path.join(playlist_output, file)
         file_core, file_extension = os.path.splitext(file)
         if file_extension == '.dsc':
-            grp_retrieved = list(retrieve_groups_from_desc(full_file))
-            desc_map[sanitize_filename(file_core, restricted=True)] = grp_retrieved
+            grp = list(retrieve_groups_from_desc(full_file))
+            desc_map[sanitize_filename(file_core, restricted=True)] = grp
         else:
             video_files.append(file)
 
@@ -32,28 +32,48 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
     img_output = os.path.join(frame_output, file)
     os.makedirs(img_output, exist_ok=True)
 
-    def getFrame(vidcap, sec, imgdir):
+    def get_category(sec, desc_categories):
+        found_secs = [tslot for tslot in desc_categories if tslot['start'] < sec < tslot['end']]
+        if found_secs:
+            category = found_secs[0]["cat"]
+            return category
+        return None
+
+    def get_frame(vidcap, sec, imgdir, category='unknown'):
         vidcap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
         hasFrames, image = vidcap.read()
+        os.makedirs(os.path.join(imgdir, category), exist_ok=True)
+        to_save = os.path.join(imgdir, category, "image" + str(sec) + ".jpg")
         if hasFrames:
-            cv2.imwrite(os.path.join(imgdir, "image" + str(count) + ".jpg"), image)  # save frame as JPG file
+            cv2.imwrite(to_save, image)  # save frame as JPG file
         return hasFrames
 
     sec = 0
     frameRate = frame_interval  # //it will capture image in each 0.5 second
     count = 1
-    success = getFrame(vidcap, sec, img_output)
+    category = get_category(sec, desc_categories)
+    success = get_frame(vidcap, sec, img_output, category if category else "unknown")
     while success:
         count = count + 1
         sec = sec + frameRate
         sec = round(sec, 2)
-        success = getFrame(vidcap, sec, img_output)
+        category = get_category(sec, desc_categories)
+        success = get_frame(vidcap, sec, img_output, category if category else "unknown")
 
 
 def retrieve_groups_from_desc(filename):
+    def youtube_time_to_secs(ytt):
+        tus = ytt.split(':')[::-1]
+        secs = 0
+        for index, tu in enumerate(tus):
+            secs += int(tu)*(60**index)
+        return secs
+
     with open(filename, 'r') as f:
         desc_curr_lines = f.readlines()
     desc_matching = [x for x in desc_curr_lines if re.match(RE_FIND_EXPR, x)]
     for dsc_m in desc_matching:
         match = re.match(RE_FIND_EXPR, dsc_m)
-        yield match.groupdict()
+        grp = match.groupdict()
+        grp["start"], grp["end"] = youtube_time_to_secs(grp["start"]), youtube_time_to_secs(grp["end"])
+        yield grp
