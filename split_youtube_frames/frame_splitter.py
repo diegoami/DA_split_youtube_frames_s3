@@ -5,6 +5,7 @@ from youtube_dl.utils import sanitize_filename
 
 
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
+RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
 
 
 def split_into_frames(frame_output, playlist_output, frame_interval):
@@ -39,26 +40,27 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
             return category
         return None
 
-    def get_frame(vidcap, sec, imgdir, category='unknown'):
+    def get_frame(vidcap, sec, imgdir, episode, category, count):
+        dir_to_split = 'validation' if (count % 5 == 0) else 'train'
         vidcap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
         hasFrames, image = vidcap.read()
-        os.makedirs(os.path.join(imgdir, category), exist_ok=True)
-        to_save = os.path.join(imgdir, category, "image" + str(sec) + ".jpg")
+        os.makedirs(os.path.join(imgdir, dir_to_split, category), exist_ok=True)
+        to_save = os.path.join(imgdir,  dir_to_split, category, "E_{}_{}.jpg".format(episode, sec))
         if hasFrames:
-            cv2.imwrite(to_save, image)  # save frame as JPG file
+            cv2.imwrite(to_save, image)
         return hasFrames
 
     sec = 0
-    frameRate = frame_interval  # //it will capture image in each 0.5 second
-    count = 1
-    category = get_category(sec, desc_categories)
-    success = get_frame(vidcap, sec, img_output, category if category else "unknown")
+    episode = extract_episode_number(file)
+    frameRate = frame_interval
+    count = 0
+    success = True
     while success:
         count = count + 1
         sec = sec + frameRate
         sec = round(sec, 2)
         category = get_category(sec, desc_categories)
-        success = get_frame(vidcap, sec, img_output, category if category else "unknown")
+        success = get_frame(vidcap, sec, frame_output, episode, category if category else "unknown", count)
 
 
 def retrieve_groups_from_desc(filename):
@@ -77,3 +79,9 @@ def retrieve_groups_from_desc(filename):
         grp = match.groupdict()
         grp["start"], grp["end"] = youtube_time_to_secs(grp["start"]), youtube_time_to_secs(grp["end"])
         yield grp
+
+def extract_episode_number(file_name):
+    match = re.match(RE_EPIS_EXPR, file_name)
+    eps_dict = match.groupdict()
+    episode = int(eps_dict["episode"])
+    return episode

@@ -2,4 +2,4 @@ output_path: /media/diego/QData/youtube_out/
 client_json_file: /media/diego/QData/secrets/client_secrets.json
 video_format: 18
 s3_bucket: splitframe-out
-frame_interval: 600
+frame_interval: 2
