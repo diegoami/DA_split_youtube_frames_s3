@@ -1,18 +1,20 @@
 import cv2
 import os
 import re
+import shutil
+import logging
 from youtube_dl.utils import sanitize_filename
-
 from split_youtube_frames.utils import extract_episode_number
-from .utils import get_int_video_ranges
+from split_youtube_frames.utils import get_int_video_ranges
+from split_youtube_frames.utils import youtube_time_to_secs
 
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
 
 
-
 def split_into_frames(frame_output, playlist_output, frame_interval, video_range):
+    os.makedirs(frame_output, exist_ok=True)
     files = list(os.listdir(playlist_output))
-    valid_ranges = get_int_video_ranges(video_range)
+    valid_ranges = get_int_video_ranges(video_range) if video_range else None
     desc_map = {}
     video_files = []
     for file in files:
@@ -23,11 +25,11 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
             desc_map[sanitize_filename(file_core, restricted=True)] = grp
         else:
             episode = extract_episode_number(file)
-            if episode in valid_ranges:
-                print("Processing {} episode".format(episode))
+            if not valid_ranges or episode in valid_ranges:
+                logging.info("Processing {} episode".format(episode))
                 video_files.append(file)
             else:
-                print("Skipping {} episode".format(episode))
+                logging.info("Skipping {} episode".format(episode))
 
     for file in video_files:
         full_file = os.path.join(playlist_output, file)
@@ -39,7 +41,10 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
 def extract_frames(file, frame_interval, frame_output, full_file, desc_categories=None):
     vidcap = cv2.VideoCapture(full_file)
     img_output = os.path.join(frame_output, file)
-    os.makedirs(img_output, exist_ok=True)
+
+    test_dir = os.path.join(frame_output, 'test')
+    if os.path.isdir(test_dir):
+        shutil.rmtree(test_dir)
 
     def get_category(sec, desc_categories):
         found_secs = [tslot for tslot in desc_categories if tslot['start'] < sec < tslot['end']]
@@ -78,12 +83,7 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
 
 
 def retrieve_groups_from_desc(filename):
-    def youtube_time_to_secs(ytt):
-        tus = ytt.split(':')[::-1]
-        secs = 0
-        for index, tu in enumerate(tus):
-            secs += int(tu)*(60**index)
-        return secs
+
 
     with open(filename, 'r') as f:
         desc_curr_lines = f.readlines()

@@ -11,7 +11,7 @@ def get_int_video_ranges(video_ranges):
             videos_selection.extend([x for x in range(int(vr_l[0]), int(vr_l[1])+1)])
         else:
             videos_selection.append(int(vr))
-    return videos_selection
+    return set(videos_selection)
 
 
 def extract_episode_number(file_name):
@@ -19,3 +19,11 @@ def extract_episode_number(file_name):
     eps_dict = match.groupdict()
     episode = int(eps_dict["episode"])
     return episode
+
+
+def youtube_time_to_secs(ytt):
+    tus = ytt.split(':')[::-1]
+    secs = 0
+    for index, tu in enumerate(tus):
+        secs += int(tu)*(60**index)
+    return secs

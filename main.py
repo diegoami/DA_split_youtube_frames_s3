@@ -31,6 +31,7 @@ if __name__ == "__main__":
     parser.add_argument('--playlist_id', type=str, required=True)
     parser.add_argument('--video_range', type=str)
 
+
     with open('config.yml') as f:
         config = yaml.safe_load(f)
 #
@@ -51,12 +52,11 @@ if __name__ == "__main__":
     playlist_output= os.path.join(video_output_path, playlist_key)
     frame_output = os.path.join(frame_output_path,  playlist_key)
 
-    if args.command == 'download_videos':
+    if args.command in ['download_videos', 'do_local', 'do_s3']:
         download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key,  video_output_path=video_output_path, video_format=config['video_format'], video_range=video_range)
-    if args.command == 'upload_videos_to_s3':
+    if args.command in ['upload_videos_to_s3', 'do_s3']:
         upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key)
-
-    if args.command == 'split_into_frames':
+    if args.command in ['split_into_frames', 'do_local', 'do_s3']:
         split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'], video_range=args.video_range)
-    if args.command == 'upload_frames_to_s3':
+    if args.command in ['upload_frames_to_s3', 'do_s3']:
         upload_frames_to_s3(s3_bucket=config['s3_bucket'], frame_output=frame_output, frame_key=playlist_key)
