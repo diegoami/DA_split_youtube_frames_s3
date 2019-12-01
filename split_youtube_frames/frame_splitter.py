@@ -31,6 +31,9 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
             else:
                 logging.info("Skipping {} episode".format(episode))
 
+    test_dir = os.path.join(frame_output, 'test')
+    if os.path.isdir(test_dir):
+        shutil.rmtree(test_dir)
     for file in video_files:
         full_file = os.path.join(playlist_output, file)
         file_core, file_extension = os.path.splitext(file)
@@ -40,11 +43,7 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
 
 def extract_frames(file, frame_interval, frame_output, full_file, desc_categories=None):
     vidcap = cv2.VideoCapture(full_file)
-    img_output = os.path.join(frame_output, file)
 
-    test_dir = os.path.join(frame_output, 'test')
-    if os.path.isdir(test_dir):
-        shutil.rmtree(test_dir)
 
     def get_category(sec, desc_categories):
         found_secs = [tslot for tslot in desc_categories if tslot['start'] < sec < tslot['end']]

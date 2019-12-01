@@ -4,4 +4,4 @@ video_format: 18
 s3_bucket: splitframe-out
 frame_interval: 2
 playlist_id: PLNP_nRm4k4jdEQ-OM31xNqeE64svvx-aT
-video_range:
+video_range: 58-59

@@ -20,12 +20,14 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
         logging.info(f"Trying to Downloading {index+1} video")
 
         for item in video_items['items']:
-            if not video_sel or index in video_sel:
-                video_id = item['contentDetails']['videoId']
-                video_snippet = youtube_client.get_video_snippet(video_id)
-                description = video_snippet["description"]
-                title = video_snippet["title"]
-                description_updated(description, playlist_output, video_id, title)
+
+            video_id = item['contentDetails']['videoId']
+            video_snippet = youtube_client.get_video_snippet(video_id)
+            description = video_snippet["description"]
+            title = video_snippet["title"]
+            episode = extract_episode_number(sanitize_filename(title, restricted=True))
+            if not video_sel or episode in video_sel:
+                description_updated(description, episode, playlist_output, video_id, title)
                 url = "http://www.youtube.com/watch?v={}".format(video_id)
 
                 logging.info(f"Downloading {index}th of playlist... ")
@@ -34,13 +36,13 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
                     youtube_dl.download([url])
                 logging.info(f"Done")
 
-            else:
-                logging.info(f"Skipping {index}th of playlist ")
-            index += 1
+        else:
+            logging.info(f"Skipping {index}th of playlist ")
+        index += 1
     return playlist_output
 
 
-def description_updated(description, playlist_output, video_id, title):
+def description_updated(description, episode, playlist_output, video_id, title):
 
     description_filename = sanitize_filename(f'{title}-{video_id}.dsc', restricted=True)
     description_full_filename = os.path.join(playlist_output, description_filename)
@@ -50,7 +52,6 @@ def description_updated(description, playlist_output, video_id, title):
             if old_desc != description:
 
                 logging.info("Description for {} has changed".format(description_full_filename))
-                episode = extract_episode_number(description_full_filename)
                 e_snippet = "*E{}*.*".format(episode)
 
                 epis_old_gen = pathlib.Path(playlist_output).rglob(e_snippet)
@@ -58,6 +59,7 @@ def description_updated(description, playlist_output, video_id, title):
                     logging.info("Removing {}".format(epis_old))
                     os.remove(epis_old)
     with open(os.path.join(playlist_output, description_filename), 'w') as dfw:
-        dfw.writelines(description)
-        logging.info(f"Description saved to {description_filename}")
+        if description:
+            dfw.writelines(description)
+            logging.info(f"Description saved to {description_filename}")
 
