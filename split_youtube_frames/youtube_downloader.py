@@ -4,7 +4,6 @@ from youtube_dl import YoutubeDL, DEFAULT_OUTTMPL
 from youtube_dl.utils import sanitize_filename
 from .utils import get_int_video_ranges
 
-'%(title)s-%(id)s.%(ext)s'
 
 
 def download_videos(youtube_client, playlist_id, playlist_key, video_output_path, video_format, video_range):
@@ -18,7 +17,7 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
     for video_items in youtube_client.iterate_videos_in_playlist(playlist_id):
         logging.info(f"Trying to Downloading {index+1} video")
         for item in video_items['items']:
-            snippet = item['snippet']
+
             content_details = item['contentDetails']
             video_id = content_details['videoId']
             video_snippet = youtube_client.get_video_snippet(video_id)

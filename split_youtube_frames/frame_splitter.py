@@ -2,10 +2,12 @@ import cv2
 import os
 import re
 from youtube_dl.utils import sanitize_filename
+
+from split_youtube_frames.utils import extract_episode_number
 from .utils import get_int_video_ranges
 
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
-RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
+
 
 
 def split_into_frames(frame_output, playlist_output, frame_interval, video_range):
@@ -14,20 +16,18 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
     desc_map = {}
     video_files = []
     for file in files:
-
-
-            full_file = os.path.join(playlist_output, file)
-            file_core, file_extension = os.path.splitext(file)
-            if file_extension == '.dsc':
-                grp = list(retrieve_groups_from_desc(full_file))
-                desc_map[sanitize_filename(file_core, restricted=True)] = grp
+        full_file = os.path.join(playlist_output, file)
+        file_core, file_extension = os.path.splitext(file)
+        if file_extension == '.dsc':
+            grp = list(retrieve_groups_from_desc(full_file))
+            desc_map[sanitize_filename(file_core, restricted=True)] = grp
+        else:
+            episode = extract_episode_number(file)
+            if episode in valid_ranges:
+                print("Processing {} episode".format(episode))
+                video_files.append(file)
             else:
-                episode = extract_episode_number(file)
-                if episode in valid_ranges:
-                    print("Processing {} episode".format(episode))
-                    video_files.append(file)
-                else:
-                    print("Skipping {} episode".format(episode))
+                print("Skipping {} episode".format(episode))
 
     for file in video_files:
         full_file = os.path.join(playlist_output, file)
@@ -53,7 +53,7 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         vidcap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
         hasFrames, image = vidcap.read()
         os.makedirs(os.path.join(imgdir, dir_to_split, category), exist_ok=True)
-        to_save = os.path.join(imgdir,  dir_to_split, category, "E_{}_{}.jpg".format(episode, sec))
+        to_save = os.path.join(imgdir,  dir_to_split, category, "E_{:>04d}_{:>06d}.jpg".format(episode, sec))
         if hasFrames:
             cv2.imwrite(to_save, image)
         return hasFrames
@@ -70,7 +70,7 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         if desc_categories:
             category = get_category(sec, desc_categories)
             dir_to_split = 'validation' if (count % 5 == 0) else 'train'
-            category if category else "unknown"
+            category = category if category else "unknown"
         else:
             dir_to_split = 'test'
             category = 'uncategorized'
@@ -94,8 +94,3 @@ def retrieve_groups_from_desc(filename):
         grp["start"], grp["end"] = youtube_time_to_secs(grp["start"]), youtube_time_to_secs(grp["end"])
         yield grp
 
-def extract_episode_number(file_name):
-    match = re.match(RE_EPIS_EXPR, file_name)
-    eps_dict = match.groupdict()
-    episode = int(eps_dict["episode"])
-    return episode

@@ -1,3 +1,7 @@
+import re
+
+RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
+
 def get_int_video_ranges(video_ranges):
     videos_selection = []
     video_ranges_l = video_ranges.split(',')
@@ -8,3 +12,10 @@ def get_int_video_ranges(video_ranges):
         else:
             videos_selection.append(int(vr))
     return videos_selection
+
+
+def extract_episode_number(file_name):
+    match = re.match(RE_EPIS_EXPR, file_name)
+    eps_dict = match.groupdict()
+    episode = int(eps_dict["episode"])
+    return episode
