@@ -3,15 +3,20 @@ import re
 RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
 
 def get_int_video_ranges(video_ranges):
-    videos_selection = []
-    video_ranges_l = video_ranges.split(',')
-    for vr in video_ranges_l:
-        if '-' in vr:
-            vr_l = vr.split('-')
-            videos_selection.extend([x for x in range(int(vr_l[0]), int(vr_l[1])+1)])
-        else:
-            videos_selection.append(int(vr))
-    return set(videos_selection)
+    if not video_ranges:
+        return {}
+    elif isinstance(video_ranges, int):
+        return {video_ranges}
+    else:
+        videos_selection = []
+        video_ranges_l = video_ranges.split(',')
+        for vr in video_ranges_l:
+            if '-' in vr:
+                vr_l = vr.split('-')
+                videos_selection.extend([x for x in range(int(vr_l[0]), int(vr_l[1])+1)])
+            else:
+                videos_selection.append(int(vr))
+        return set(videos_selection)
 
 
 def extract_episode_number(file_name):

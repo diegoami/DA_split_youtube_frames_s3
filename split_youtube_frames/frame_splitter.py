@@ -11,10 +11,11 @@ from split_youtube_frames.utils import youtube_time_to_secs
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
 
 
-def split_into_frames(frame_output, playlist_output, frame_interval, video_range):
+def split_into_frames(frame_output, playlist_output, frame_interval, video_range_train, video_range_test):
     os.makedirs(frame_output, exist_ok=True)
     files = list(os.listdir(playlist_output))
-    valid_ranges = get_int_video_ranges(video_range) if video_range else None
+    valid_ranges_train = get_int_video_ranges(video_range_train)
+    valid_ranges_test = get_int_video_ranges(video_range_test)
     desc_map = {}
     video_files = []
     for file in files:
@@ -25,7 +26,7 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
             desc_map[sanitize_filename(file_core, restricted=True)] = grp
         else:
             episode = extract_episode_number(file)
-            if not valid_ranges or episode in valid_ranges:
+            if episode in valid_ranges_train or episode in valid_ranges_test:
                 logging.info("Processing {} episode".format(episode))
                 video_files.append(file)
             else:
@@ -37,7 +38,7 @@ def split_into_frames(frame_output, playlist_output, frame_interval, video_range
     for file in video_files:
         full_file = os.path.join(playlist_output, file)
         file_core, file_extension = os.path.splitext(file)
-        desc_categories = desc_map[file_core]
+        desc_categories = desc_map.get(file_core, None)
         extract_frames(file, frame_interval, frame_output, full_file, desc_categories)
 
 
