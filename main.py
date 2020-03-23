@@ -22,8 +22,7 @@ if __name__ == "__main__":
     # exclude the rest of the args too, or validation will fail
     args = parser.parse_args(sys.argv[1:2])
     if args.command not in ['download_videos', 'upload_videos_to_s3', 'upload_frames_to_s3', 'split_into_frames', 'do_local', 'do_s3']:
-        print
-        'Unrecognized command'
+        print('Unrecognized command')
         parser.print_help()
         exit(1)
     # use dispatch pattern to invoke method with same name

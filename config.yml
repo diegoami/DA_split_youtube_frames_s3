@@ -4,6 +4,6 @@ video_format: 18
 s3_bucket: splitframe-out
 frame_interval: 2
 playlist_id: PLNP_nRm4k4jdEQ-OM31xNqeE64svvx-aT
-video_range_keep: 52-60
-video_range_train:
-video_range_test: 61-62
+video_range_keep: 52-62, 64-72
+video_range_train: 63
+video_range_test: 64
