@@ -49,4 +49,4 @@ Frames from the videos to be predicted will be under a directory named "uncatego
 
 ## NEXT STEP
 
-The next step after this generation is to move 
+The next step after this generation is to create a model using the project https://github.com/diegoami/DA_tensorflow_for_letsplay
