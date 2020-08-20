@@ -17,7 +17,6 @@ def download_videos(youtube_client, playlist_id, playlist_key, video_output_path
 
     def download_video(playlist_output, video_id):
         url = "http://www.youtube.com/watch?v={}".format(video_id)
-        logging.info(f"Downloading {index}th of playlist... ")
         with YoutubeDL({'format': str(video_format), 'merge-output-format': 'mp4', 'cachedir': False,
                         'outtmpl': playlist_output + '/' + DEFAULT_OUTTMPL, "nooverwrites": True, "restrictfilenames": True}) as youtube_dl:
             youtube_dl.download([url])

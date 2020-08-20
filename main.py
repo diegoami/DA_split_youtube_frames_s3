@@ -17,17 +17,21 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('command', help='Subcommand to run')
-    # parse_args defaults to [1:] for args, but you need to
-    # exclude the rest of the args too, or validation will fail
-    args = parser.parse_args(sys.argv[1:2])
+    parser.add_argument('command', help='Subcommand to run', default='download_videos')
+    parser.add_argument('configuration', help='configuration to run', default='config')
+
+    args = parser.parse_args(sys.argv[1:3])
     if args.command not in ['download_videos', 'upload_videos_to_s3', 'upload_frames_to_s3', 'split_into_frames', 'do_local', 'do_s3']:
         print('Unrecognized command')
         parser.print_help()
         exit(1)
     # use dispatch pattern to invoke method with same name
+    configuration_file = f'{args.configuration}.yml'
+    if not os.path.exists(configuration_file):
+        print(f'{configuration_file} does not exist')
+        exit(1)
 
-    with open('config.yml') as f:
+    with open(configuration_file) as f:
         config = yaml.safe_load(f)
     if not os.path.exists(config['output_path']):
         os.makedirs(config['output_path'])
@@ -38,9 +42,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     playlist_id = config['playlist_id']
-    video_range_keep = config['video_range_keep']
-    video_range_train = config['video_range_train']
-    video_range_test = config['video_range_test']
+    video_range_keep = config.get('video_range_keep', None)
+    video_range_train = config.get('video_range_train', None)
+    video_range_test = config.get('video_range_test', None)
     youtube_client = YoutubeClient(config['client_json_file'])
     playlist_name = youtube_client.playlist_name(playlist_id)
 
