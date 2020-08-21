@@ -45,6 +45,7 @@ if __name__ == "__main__":
     video_range_keep = config.get('video_range_keep', None)
     video_range_train = config.get('video_range_train', None)
     video_range_test = config.get('video_range_test', None)
+    target_directory = config.get('target_directory', None)
     youtube_client = YoutubeClient(config['client_json_file'])
     playlist_name = youtube_client.playlist_name(playlist_id)
 
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     if args.command in ['download_videos', 'do_local', 'do_s3']:
         download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key,  video_output_path=video_output_path, video_format=config['video_format'], video_range_keep= video_range_keep, video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_videos_to_s3', 'do_s3']:
-        upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key)
+        upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key, target_directory=target_directory)
     if args.command in ['split_into_frames', 'do_local', 'do_s3']:
         split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'], video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_frames_to_s3', 'do_s3']:

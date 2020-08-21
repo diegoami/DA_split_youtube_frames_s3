@@ -5,3 +5,4 @@ s3_bucket: da-youtube-all
 frame_interval: 2
 playlist_id: PLNP_nRm4k4jfNLo7FkjXewFH9Xe5Uc2Pa
 video_range_train: 1-55
+target_directory: wendy-warband
