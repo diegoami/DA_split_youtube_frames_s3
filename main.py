@@ -41,7 +41,9 @@ if __name__ == "__main__":
         os.makedirs(video_output_path)
 
     args = parser.parse_args()
-    playlist_id = config['playlist_id']
+    playlist_id = config.get('playlist_id', None)
+    playlist_ids = config.get('playlist_ids', None)
+
     video_range_keep = config.get('video_range_keep', None)
     video_range_train = config.get('video_range_train', None)
     video_range_test = config.get('video_range_test', None)

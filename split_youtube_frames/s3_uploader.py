@@ -16,9 +16,9 @@ def upload_videos_to_s3(s3_bucket, playlist_output, playlist_key, target_directo
         for file in files:
             full_file = os.path.join(playlist_output, file)
             if '.mp4' in full_file:
-                dest_file = os.path.join('videos', target_directory, file)
+                dest_file = os.path.join(target_directory, 'videos', file)
             else:
-                dest_file = os.path.join('metadata', target_directory, file)
+                dest_file = os.path.join(target_directory, 'metadata', file)
             logging.info("Transferring {} to {}:{}".format(full_file, s3_bucket, dest_file))
             transfer.upload_file(full_file, s3_bucket, dest_file)
 
