@@ -4,11 +4,12 @@ import re
 import shutil
 import logging
 from youtube_dl.utils import sanitize_filename
-from split_youtube_frames.utils import extract_episode_number
-from split_youtube_frames.utils import get_int_video_ranges
-from split_youtube_frames.utils import youtube_time_to_secs
+from .utils import extract_episode_number
+from .utils import get_int_video_ranges
+from .utils import youtube_time_to_secs
+from .utils import keep_groups_in_desc
+from .utils import retrieve_groups_from_desc
 
-RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
 
 
 def split_into_frames(frame_output, playlist_output, frame_interval, video_range_train, video_range_test):
@@ -82,15 +83,5 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         success = get_frame(vidcap, sec, frame_output, episode, category, dir_to_split)
 
 
-def retrieve_groups_from_desc(filename):
 
-
-    with open(filename, 'r') as f:
-        desc_curr_lines = f.readlines()
-    desc_matching = [x for x in desc_curr_lines if re.match(RE_FIND_EXPR, x)]
-    for dsc_m in desc_matching:
-        match = re.match(RE_FIND_EXPR, dsc_m)
-        grp = match.groupdict()
-        grp["start"], grp["end"] = youtube_time_to_secs(grp["start"]), youtube_time_to_secs(grp["end"])
-        yield grp
 

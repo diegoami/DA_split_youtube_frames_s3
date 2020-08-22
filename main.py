@@ -35,30 +35,40 @@ if __name__ == "__main__":
         config = yaml.safe_load(f)
     if not os.path.exists(config['output_path']):
         os.makedirs(config['output_path'])
-    video_output_path = os.path.join(config['output_path'], 'videos')
-    frame_output_path = os.path.join(config['output_path'], 'frames')
-    if not os.path.exists(video_output_path):
-        os.makedirs(video_output_path)
+
+
 
     args = parser.parse_args()
     playlist_id = config.get('playlist_id', None)
     playlist_ids = config.get('playlist_ids', None)
+    only_metadata = config.get('only_metadata', None)
 
     video_range_keep = config.get('video_range_keep', None)
     video_range_train = config.get('video_range_train', None)
     video_range_test = config.get('video_range_test', None)
     target_directory = config.get('target_directory', None)
     youtube_client = YoutubeClient(config['client_json_file'])
-    playlist_name = youtube_client.playlist_name(playlist_id)
+    if playlist_id:
+        playlist_names = [youtube_client.playlist_name(playlist_id)]
+    else:
+        playlist_names = [youtube_client.playlist_name(playlist_id) for playlist_id in playlist_ids]
 
-    playlist_key = playlist_id + '_' + sanitize_filename(playlist_name, restricted=True)
-    playlist_output= os.path.join(video_output_path, playlist_key)
-    frame_output = os.path.join(frame_output_path,  playlist_key)
+    target_key = target_directory + '_' + sanitize_filename(target_directory, restricted=True)
+    output_path = config.get('output_path', '.')
+    video_output_path = os.path.join(output_path, target_directory, 'videos')
+    frame_output_path = os.path.join(output_path, target_directory, 'frames')
+    metadata_output_path = os.path.join(output_path, target_directory, 'metadata')
+    if not os.path.exists(video_output_path):
+        os.makedirs(video_output_path)
+    if not os.path.exists(metadata_output_path):
+        os.makedirs(metadata_output_path)
+    if not os.path.exists(frame_output_path):
+        os.makedirs(frame_output_path)
 
     if args.command in ['download_videos', 'do_local', 'do_s3']:
-        download_videos(youtube_client=youtube_client, playlist_id=playlist_id, playlist_key=playlist_key,  video_output_path=video_output_path, video_format=config['video_format'], video_range_keep= video_range_keep, video_range_train=video_range_train, video_range_test=video_range_test)
+        download_videos(youtube_client=youtube_client, playlist_ids=playlist_ids,   video_output_path=video_output_path, metadata_output_path=metadata_output_path, video_format=config['video_format'], video_range_keep= video_range_keep, video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_videos_to_s3', 'do_s3']:
-        upload_videos_to_s3(s3_bucket=config['s3_bucket'], playlist_output=playlist_output, playlist_key=playlist_key, target_directory=target_directory)
+        upload_videos_to_s3(s3_bucket=config['s3_bucket'], output_path=output_path,  target_directory=target_directory, only_metadata=only_metadata)
     if args.command in ['split_into_frames', 'do_local', 'do_s3']:
         split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'], video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_frames_to_s3', 'do_s3']:

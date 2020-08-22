@@ -1,6 +1,8 @@
 import re
 
 RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
+RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
+
 
 def get_int_video_ranges(video_ranges):
     if not video_ranges:
@@ -32,3 +34,26 @@ def youtube_time_to_secs(ytt):
     for index, tu in enumerate(tus):
         secs += int(tu)*(60**index)
     return secs
+
+
+def keep_groups_in_desc(filename):
+    with open(filename, 'r') as f:
+        desc_curr_lines = f.readlines()
+    desc_matching = [x for x in desc_curr_lines if re.match(RE_FIND_EXPR, x)]
+    newfilename = filename.replace('.dsc', '.prd')
+    if len(desc_matching) > 0:
+        with open(newfilename, 'w') as f:
+            f.writelines(desc_matching)
+    return newfilename
+
+def retrieve_groups_from_desc(filename):
+
+
+    with open(filename, 'r') as f:
+        desc_curr_lines = f.readlines()
+    desc_matching = [x for x in desc_curr_lines if re.match(RE_FIND_EXPR, x)]
+    for dsc_m in desc_matching:
+        match = re.match(RE_FIND_EXPR, dsc_m)
+        grp = match.groupdict()
+        grp["start"], grp["end"] = youtube_time_to_secs(grp["start"]), youtube_time_to_secs(grp["end"])
+        yield grp

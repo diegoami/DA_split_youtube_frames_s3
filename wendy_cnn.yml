@@ -1,0 +1,10 @@
+output_path: data/youtube_ml/
+client_json_file: data/secrets/client_secrets.json
+video_format: 18
+s3_bucket: da-youtube-ml
+frame_interval: 2
+playlist_ids:
+  - PLNP_nRm4k4jfVfQobYTRQAXV_uOzt8Bov
+  - PLNP_nRm4k4jdEQ-OM31xNqeE64svvx-aT
+video_range_train: 41-66
+target_directory: wendy-cnn
