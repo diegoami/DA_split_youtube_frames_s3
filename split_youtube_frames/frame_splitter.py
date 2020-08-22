@@ -37,8 +37,8 @@ def split_into_frames(output_path, target_directory, frame_interval, video_range
 
 
     test_dir = os.path.join(frame_output, 'test')
-    if os.path.isdir(test_dir):
-        shutil.rmtree(test_dir)
+#    if os.path.isdir(test_dir):
+#        shutil.rmtree(test_dir)
     for file in video_files:
         episode = extract_episode_number(file)
         if episode in valid_ranges_train or episode in valid_ranges_test:
@@ -85,7 +85,7 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
                 dir_to_split = 'validation' if (count % 5 == 0) else 'train'
             else:
                 dir_to_split = 'all'
-            category = category if category else "unknown"
+            category = category if category else "Other"
         else:
             dir_to_split = 'test'
             category = 'uncategorized'

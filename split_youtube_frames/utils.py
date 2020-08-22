@@ -1,7 +1,7 @@
 import re
 
 RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
-RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)\s+.*"
+RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)[\s\:]+.*"
 
 
 def get_int_video_ranges(video_ranges):

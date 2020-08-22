@@ -66,10 +66,10 @@ if __name__ == "__main__":
         os.makedirs(frame_output_path)
 
     if args.command in ['download_videos', 'do_local', 'do_s3']:
-        download_videos(youtube_client=youtube_client, playlist_ids=playlist_ids,   video_output_path=video_output_path, metadata_output_path=metadata_output_path, video_format=config['video_format'], video_range_keep= video_range_keep, video_range_train=video_range_train, video_range_test=video_range_test)
+        download_videos(youtube_client=youtube_client, playlist_ids=playlist_ids,   video_output_path=video_output_path, metadata_output_path=metadata_output_path, video_format=config['video_format'], video_range_keep= video_range_keep, video_range_train=video_range_train, video_range_test=video_range_test, only_metadata=only_metadata)
     if args.command in ['upload_videos_to_s3', 'do_s3']:
         upload_videos_to_s3(s3_bucket=config['s3_bucket'], output_path=output_path,  target_directory=target_directory, only_metadata=only_metadata)
     if args.command in ['split_into_frames', 'do_local', 'do_s3']:
         split_into_frames(output_path=output_path, target_directory=target_directory, frame_interval=config['frame_interval'], video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_frames_to_s3', 'do_s3']:
-        upload_frames_to_s3(s3_bucket=config['s3_bucket'], frame_output=frame_output, frame_key=playlist_key)
+        upload_frames_to_s3(s3_bucket=config['s3_bucket'], output_path=output_path,  target_directory=target_directory)

@@ -13,7 +13,7 @@ def remove_files_for_episode(playlist_output, episode):
         logging.info("Removing {}".format(epis_old))
         os.remove(epis_old)
 
-def download_videos(youtube_client, playlist_ids, video_output_path, metadata_output_path, video_format, video_range_keep, video_range_train, video_range_test):
+def download_videos(youtube_client, playlist_ids, video_output_path, metadata_output_path, video_format, video_range_keep, video_range_train, video_range_test, only_metadata=False):
 
     def download_video(directory, video_id):
         url = "http://www.youtube.com/watch?v={}".format(video_id)
@@ -41,11 +41,14 @@ def download_videos(youtube_client, playlist_ids, video_output_path, metadata_ou
                 if episode in video_sel_keep:
                     pass
                 elif episode in video_sel_train:
-                    remove_files_for_episode(video_output_path, episode)
                     update_description(description=description, directory=metadata_output_path, video_id=video_id, title=title)
-                    download_video(directory=video_output_path, video_id=video_id)
+                    if not only_metadata:
+                        remove_files_for_episode(video_output_path, episode)
+                        download_video(directory=video_output_path, video_id=video_id)
                 elif episode in video_sel_test:
-                    download_video(playlist_output=video_output_path, video_id=video_id)
+                    if not only_metadata:
+                        remove_files_for_episode(video_output_path, episode)
+                        download_video(directory=video_output_path, video_id=video_id)
             else:
                 logging.info(f"Skipping {index}th of playlist ")
             index += 1
