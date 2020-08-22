@@ -70,6 +70,6 @@ if __name__ == "__main__":
     if args.command in ['upload_videos_to_s3', 'do_s3']:
         upload_videos_to_s3(s3_bucket=config['s3_bucket'], output_path=output_path,  target_directory=target_directory, only_metadata=only_metadata)
     if args.command in ['split_into_frames', 'do_local', 'do_s3']:
-        split_into_frames(frame_output=frame_output, playlist_output=playlist_output, frame_interval=config['frame_interval'], video_range_train=video_range_train, video_range_test=video_range_test)
+        split_into_frames(output_path=output_path, target_directory=target_directory, frame_interval=config['frame_interval'], video_range_train=video_range_train, video_range_test=video_range_test)
     if args.command in ['upload_frames_to_s3', 'do_s3']:
         upload_frames_to_s3(s3_bucket=config['s3_bucket'], frame_output=frame_output, frame_key=playlist_key)

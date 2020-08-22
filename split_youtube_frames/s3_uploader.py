@@ -32,12 +32,13 @@ def upload_videos_to_s3(s3_bucket, output_path, target_directory, only_metadata=
         metadata_output = os.path.join(playlist_output, 'metadata')
         video_files = os.listdir(video_output)
         metadata_files = os.listdir(metadata_output)
-        for video_file in video_files:
-            full_video_file = os.path.join(video_output, video_file)
-            dest_file = os.path.join(target_directory, 'videos', video_file)
-            upload_to_s3(full_video_file, dest_file)
+        if not only_metadata:
+            for video_file in video_files:
+                full_video_file = os.path.join(video_output, video_file)
+                dest_file = os.path.join(target_directory, 'videos', video_file)
+                upload_to_s3(full_video_file, dest_file)
         for metadata_file in metadata_files:
-            full_metadata_file = os.path.join(playlist_output, metadata_file)
+            full_metadata_file = os.path.join(metadata_output, metadata_file)
             dest_file = os.path.join(target_directory, 'metadata', metadata_file)
             upload_to_s3(full_metadata_file, dest_file)
 

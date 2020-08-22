@@ -8,3 +8,4 @@ playlist_ids:
   - PLNP_nRm4k4jdEQ-OM31xNqeE64svvx-aT
 video_range_train: 41-66
 target_directory: wendy-cnn
+only_metadata: True
