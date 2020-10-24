@@ -39,6 +39,7 @@ def download_videos(youtube_client, playlist_ids, video_output_path, metadata_ou
                 title = video_snippet["title"]
                 episode = extract_episode_number(sanitize_filename(title, restricted=True))
                 if episode in video_sel_keep:
+                    logging.info(f"Keeping {episode}")
                     pass
                 elif episode in video_sel_train:
                     update_description(description=description, directory=metadata_output_path, video_id=video_id, title=title)

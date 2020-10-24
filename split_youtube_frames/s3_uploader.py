@@ -61,4 +61,4 @@ def upload_frames_to_s3(s3_bucket, output_path, target_directory):
                     full_file = os.path.join(frame_output, dataset_dir, category_dir, file)
                     dest_file = os.path.join(target_directory, 'frames',  dataset_dir, category_dir, file)
                     logging.info("Transferring {} to {}:{}".format(full_file, s3_bucket, dest_file))
-                    transfer.upload_file(full_file, s3_bucket, dest_file, s3_bucket)
+                    transfer.upload_file(full_file, s3_bucket, dest_file)

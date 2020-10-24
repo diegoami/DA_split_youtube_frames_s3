@@ -1,13 +1,9 @@
 import cv2
 import os
-import re
-import shutil
 import logging
 from youtube_dl.utils import sanitize_filename
 from .utils import extract_episode_number
 from .utils import get_int_video_ranges
-from .utils import youtube_time_to_secs
-from .utils import keep_groups_in_desc
 from .utils import retrieve_groups_from_desc
 
 
@@ -57,6 +53,10 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         found_secs = [tslot for tslot in desc_categories if tslot['start'] < sec < tslot['end']]
         if found_secs:
             category = found_secs[0]["cat"]
+            if category in ['Trap', 'Town']:
+                category = 'Battle'
+            if category in ['Training']:
+                category = 'Other'
             return category
         return None
 
@@ -68,7 +68,8 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
         hours, minutes, secs = totsec // 3600, (totsec // 60 ) % 60, totsec % 60
         to_save = os.path.join(imgdir,  dir_to_split, category, "E_{:>04d}_{:>02d}_{:>02d}_{:>02d}.jpg".format(episode, hours, minutes, secs))
         if hasFrames:
-            cv2.imwrite(to_save, image)
+            reduced_image = cv2.resize(image, (320, 180))
+            cv2.imwrite(to_save, reduced_image)
         return hasFrames
 
     sec = 0
