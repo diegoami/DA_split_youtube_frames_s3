@@ -50,7 +50,7 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
 
 
     def get_category(sec, desc_categories):
-        found_secs = [tslot for tslot in desc_categories if tslot['start'] < sec < tslot['end']]
+        found_secs = [tslot for tslot in desc_categories if tslot['start'] <= sec <= tslot['end']]
         if found_secs:
             category = found_secs[0]["cat"]
             if category in ['Trap', 'Town']:
