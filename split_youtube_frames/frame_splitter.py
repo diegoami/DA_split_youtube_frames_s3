@@ -8,7 +8,7 @@ from .utils import retrieve_groups_from_desc
 
 
 
-def split_into_frames(output_path, target_directory, frame_interval, video_range_train, video_range_test):
+def split_into_frames(output_path, target_directory, frame_interval, video_range_train, video_range_test, category_mapping=None):
     playlist_output = os.path.join(output_path, target_directory)
 
     video_output = os.path.join(playlist_output, 'videos')
@@ -42,21 +42,20 @@ def split_into_frames(output_path, target_directory, frame_interval, video_range
             full_file = os.path.join(video_output, file)
             file_core, file_extension = os.path.splitext(file)
             desc_categories = desc_map.get(file_core, None)
-            extract_frames(file, frame_interval, frame_output, full_file, desc_categories)
+            extract_frames(file, frame_interval, frame_output, full_file, desc_categories, category_mapping=category_mapping)
 
 
-def extract_frames(file, frame_interval, frame_output, full_file, desc_categories=None, validate_split=False):
+def extract_frames(file, frame_interval, frame_output, full_file, desc_categories=None, validate_split=False, category_mapping=None):
     vidcap = cv2.VideoCapture(full_file)
 
 
-    def get_category(sec, desc_categories):
+    def get_category(sec, desc_categories, category_mapping=None):
         found_secs = [tslot for tslot in desc_categories if tslot['start'] <= sec <= tslot['end']]
         if found_secs:
             category = found_secs[0]["cat"]
-            if category in ['Trap', 'Town']:
-                category = 'Battle'
-            if category in ['Training']:
-                category = 'Other'
+            if category_mapping:
+                if category in category_mapping:
+                    category = category_mapping[category]
             return category
         return None
 
@@ -78,17 +77,16 @@ def extract_frames(file, frame_interval, frame_output, full_file, desc_categorie
     count = 0
     success = True
     while success:
-
         sec = round(sec, 2)
         if desc_categories:
-            category = get_category(sec, desc_categories)
+            category = get_category(sec, desc_categories, category_mapping)
             if validate_split:
                 dir_to_split = 'validation' if (count % 5 == 0) else 'train'
             else:
                 dir_to_split = 'all'
             category = category if category else "Other"
         else:
-            dir_to_split = 'test'
+            dir_to_split = f'E{episode}'
             category = 'uncategorized'
         success = get_frame(vidcap, sec, frame_output, episode, category, dir_to_split)
         count = count + 1
