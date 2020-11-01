@@ -7,11 +7,13 @@ playlist_ids:
 #  - PLNP_nRm4k4jfVfQobYTRQAXV_uOzt8Bov
 #  - PLNP_nRm4k4jdEQ-OM31xNqeE64svvx-aT
   - PLNP_nRm4k4jeoJ8H7mtTUbbOJ6_Rx_god
-video_range_keep: 41-68
-video_range_test: 69-70
+video_range_keep: 41-69, 71-76
+video_range_test: 77
 target_directory: wendy-cnn-5
 only_metadata: False
 category_mapping:
   Training: Other
+  Walk: Other
   Trap: Battle
   Town: Battle
+  Arena: Other
