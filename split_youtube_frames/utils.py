@@ -1,6 +1,6 @@
 import re
 
-RE_EPIS_EXPR = ".*_E(?P<episode>\d+)_.*"
+RE_EPIS_EXPR = ".* E(?P<episode>\d+).*"
 RE_FIND_EXPR = "(?P<start>[\d:]+)-(?P<end>[\d:]+)\s+(?P<cat>\w+)[\s\:]+.*"
 
 

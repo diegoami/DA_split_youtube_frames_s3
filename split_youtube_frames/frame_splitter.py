@@ -7,6 +7,19 @@ from .utils import get_int_video_ranges
 from .utils import retrieve_groups_from_desc
 
 
+def simple_split(video_output, frame_output,  frame_interval, video_range_train):
+    os.makedirs(frame_output, exist_ok=True)
+    valid_ranges_train = get_int_video_ranges(video_range_train)
+
+    video_files = list(os.listdir(video_output))
+
+    for file in video_files:
+        if file.endswith(".mp4"):
+            episode = extract_episode_number(file)
+            if episode in valid_ranges_train:
+                logging.info("Processing {} episode".format(episode))
+                full_file = os.path.join(video_output, file)
+                extract_frames(file, frame_interval, frame_output, full_file, desc_categories=None, category_mapping=None)
 
 def split_into_frames(output_path, target_directory, frame_interval, video_range_train, video_range_test, category_mapping=None):
     playlist_output = os.path.join(output_path, target_directory)

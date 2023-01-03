@@ -9,5 +9,5 @@ PyYAML==6.0
 rsa==4.0
 s3transfer==0.5.0
 urllib3==1.26.7
-youtube-dl==2021.6.6
-youtube3==1.1.0
+youtube-dl==2021.12.17
+youtube3==1.2.3

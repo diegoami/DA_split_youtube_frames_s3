@@ -1,0 +1,13 @@
+output_path: /media/exfat/youtube/
+client_json_file: data/secrets/client_secrets.json
+video_format: 18
+s3_bucket: da-youtube-ml3
+frame_interval: 2
+playlist_ids:
+  - "PLNP_nRm4k4jdohxa0vGM1-GO7IajdO44_"
+video_range_keep:
+video_range_train: 1-3
+video_range_test:
+target_directory: ajin
+only_metadata: False
+category_mapping:
